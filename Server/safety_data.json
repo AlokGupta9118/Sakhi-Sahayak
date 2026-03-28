@@ -1,0 +1,1169 @@
+{
+    "police_stations": [
+        {
+            "name": "Sitabuldi PS",
+            "lat": 21.144,
+            "lng": 79.083,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Sadar PS",
+            "lat": 21.151,
+            "lng": 79.072,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Dhantoli PS",
+            "lat": 21.139,
+            "lng": 79.076,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Ganeshpeth PS",
+            "lat": 21.147,
+            "lng": 79.09,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Kotwali PS",
+            "lat": 21.153,
+            "lng": 79.096,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Ambazari PS",
+            "lat": 21.138,
+            "lng": 79.05,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Rana Pratap Nagar PS",
+            "lat": 21.132,
+            "lng": 79.038,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "MIDC PS",
+            "lat": 21.125,
+            "lng": 79.02,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Wadi PS",
+            "lat": 21.16,
+            "lng": 79.03,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Hingna PS",
+            "lat": 21.11,
+            "lng": 79.01,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Sonegaon PS",
+            "lat": 21.12,
+            "lng": 79.09,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Ajni PS",
+            "lat": 21.128,
+            "lng": 79.085,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Beltarodi PS",
+            "lat": 21.095,
+            "lng": 79.1,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Hudkeshwar PS",
+            "lat": 21.11,
+            "lng": 79.11,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Jaripatka PS",
+            "lat": 21.175,
+            "lng": 79.085,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Koradi PS",
+            "lat": 21.205,
+            "lng": 79.075,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Gittikhadan PS",
+            "lat": 21.17,
+            "lng": 79.05,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Lakadganj PS",
+            "lat": 21.163,
+            "lng": 79.12,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Kalamna PS",
+            "lat": 21.155,
+            "lng": 79.13,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Nandanvan PS",
+            "lat": 21.148,
+            "lng": 79.11,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Sakkardara PS",
+            "lat": 21.14,
+            "lng": 79.105,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Panchpaoli PS",
+            "lat": 21.149,
+            "lng": 79.088,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Yashodhara Nagar PS",
+            "lat": 21.16,
+            "lng": 79.108,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Bajaj Nagar PS",
+            "lat": 21.143,
+            "lng": 79.058,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Mankapur PS",
+            "lat": 21.17,
+            "lng": 79.07,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Wathoda PS",
+            "lat": 21.155,
+            "lng": 79.12,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Imamwada PS",
+            "lat": 21.152,
+            "lng": 79.099,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Cyber PS",
+            "lat": 21.146,
+            "lng": 79.081,
+            "description": "",
+            "contact": ""
+        }
+    ],
+    "hospitals": [
+        {
+            "name": "Daga Memorial Hospital",
+            "lat": 21.15,
+            "lng": 79.095,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Regional Mental Hospital",
+            "lat": 21.165,
+            "lng": 79.078,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Dr. Dande Hospital",
+            "lat": 21.139,
+            "lng": 79.052,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Gillurkar Multispeciality",
+            "lat": 21.138,
+            "lng": 79.105,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "City Hospital",
+            "lat": 21.225,
+            "lng": 79.202,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Government Medical College (GMC)",
+            "lat": 21.135,
+            "lng": 79.08,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "AIIMS Nagpur",
+            "lat": 21.089,
+            "lng": 79.065,
+            "description": "",
+            "contact": ""
+        }
+    ],
+    "danger_zones": [
+        {
+            "center": [
+                21.123648648648643,
+                79.0784189189189
+            ],
+            "radius": 800,
+            "severity": "Critical",
+            "incidents": 74
+        }
+    ],
+    "metro_stations": [
+        {
+            "name": "Automotive Square",
+            "lat": 21.185,
+            "lng": 79.078,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Nari Road",
+            "lat": 21.179,
+            "lng": 79.08,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Indora Square",
+            "lat": 21.173,
+            "lng": 79.081,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Kadvi Chowk",
+            "lat": 21.168,
+            "lng": 79.083,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Gaddi Godam Square",
+            "lat": 21.161,
+            "lng": 79.085,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Kasturchand Park",
+            "lat": 21.157,
+            "lng": 79.083,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Zero Mile Freedom Park",
+            "lat": 21.152,
+            "lng": 79.083,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Sitabuldi (Orange)",
+            "lat": 21.145,
+            "lng": 79.0835,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Congress Nagar",
+            "lat": 21.14,
+            "lng": 79.084,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Rahate Colony",
+            "lat": 21.135,
+            "lng": 79.083,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Ajni Square",
+            "lat": 21.128,
+            "lng": 79.082,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Chhatrapati Square",
+            "lat": 21.122,
+            "lng": 79.081,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Jaiprakash Nagar",
+            "lat": 21.117,
+            "lng": 79.08,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Ujjwal Nagar",
+            "lat": 21.111,
+            "lng": 79.079,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Airport",
+            "lat": 21.104,
+            "lng": 79.075,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Airport South",
+            "lat": 21.098,
+            "lng": 79.07,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "New Airport",
+            "lat": 21.092,
+            "lng": 79.066,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Khapri",
+            "lat": 21.087,
+            "lng": 79.062,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Prajapati Nagar",
+            "lat": 21.153,
+            "lng": 79.13,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Vaishnodevi Square",
+            "lat": 21.153,
+            "lng": 79.123,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Ambedkar Square",
+            "lat": 21.152,
+            "lng": 79.117,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Telephone Exchange",
+            "lat": 21.152,
+            "lng": 79.11,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Chitar Oli Chowk",
+            "lat": 21.151,
+            "lng": 79.103,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Agrasen Square",
+            "lat": 21.15,
+            "lng": 79.096,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Dosar Vaishya Square",
+            "lat": 21.149,
+            "lng": 79.092,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Nagpur Railway Station",
+            "lat": 21.148,
+            "lng": 79.088,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Cotton Market",
+            "lat": 21.147,
+            "lng": 79.086,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Sitabuldi (Aqua)",
+            "lat": 21.145,
+            "lng": 79.0835,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Jhansi Rani Square",
+            "lat": 21.144,
+            "lng": 79.078,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Institution of Engineers",
+            "lat": 21.143,
+            "lng": 79.072,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Shankar Nagar Square",
+            "lat": 21.142,
+            "lng": 79.065,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "LAD Square",
+            "lat": 21.141,
+            "lng": 79.058,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Dharampeth College",
+            "lat": 21.14,
+            "lng": 79.051,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Subhash Nagar",
+            "lat": 21.139,
+            "lng": 79.044,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Rachana Ring Road",
+            "lat": 21.137,
+            "lng": 79.035,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Vasudev Nagar",
+            "lat": 21.135,
+            "lng": 79.027,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Bansi Nagar",
+            "lat": 21.133,
+            "lng": 79.02,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Lokmanya Nagar",
+            "lat": 21.131,
+            "lng": 79.013,
+            "description": "",
+            "contact": ""
+        }
+    ],
+    "black_spots": [
+        {
+            "name": "Manewada Isolated Stretch 1",
+            "lat": 21.113,
+            "lng": 79.108,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Pipla Road Dark Zone",
+            "lat": 21.108,
+            "lng": 79.112,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Hudkeshwar Kh Approach",
+            "lat": 21.105,
+            "lng": 79.115,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Besa Road Underpass",
+            "lat": 21.11,
+            "lng": 79.105,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Manewada Colony Edge",
+            "lat": 21.114,
+            "lng": 79.109,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Chandrakiran Nagar Isolated",
+            "lat": 21.107,
+            "lng": 79.103,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Omkar Nagar Periphery",
+            "lat": 21.115,
+            "lng": 79.102,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Dighori Bypass Lane",
+            "lat": 21.12,
+            "lng": 79.115,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Manish Nagar Flyover (Unlit)",
+            "lat": 21.112,
+            "lng": 79.098,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Besa-Pipla Junction",
+            "lat": 21.106,
+            "lng": 79.107,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Hudkeshwar Village Approach",
+            "lat": 21.102,
+            "lng": 79.113,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Manewada Ring Road Stretch",
+            "lat": 21.116,
+            "lng": 79.106,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Pipla Road Housing Edge",
+            "lat": 21.109,
+            "lng": 79.11,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Hudkeshwar Main Road Gap",
+            "lat": 21.104,
+            "lng": 79.109,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Beltarodi Outer Ring Road",
+            "lat": 21.097,
+            "lng": 79.095,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Wardha Road Industrial Gap",
+            "lat": 21.098,
+            "lng": 79.098,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "New Township Dark Streets",
+            "lat": 21.093,
+            "lng": 79.097,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Beltarodi Village Lane",
+            "lat": 21.092,
+            "lng": 79.102,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Southern Bypass Stretch",
+            "lat": 21.09,
+            "lng": 79.093,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Beltarodi Naka Zone",
+            "lat": 21.096,
+            "lng": 79.101,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Outer Ring - Wardha Jn",
+            "lat": 21.094,
+            "lng": 79.09,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "New Colony Approach Road",
+            "lat": 21.091,
+            "lng": 79.096,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Beltarodi Lake Area",
+            "lat": 21.089,
+            "lng": 79.1,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "South Ring Road Gap 1",
+            "lat": 21.095,
+            "lng": 79.088,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Wardha Road Outskirts",
+            "lat": 21.088,
+            "lng": 79.092,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Township Internal Road",
+            "lat": 21.0935,
+            "lng": 79.104,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Mohgaon Zilpi Lake",
+            "lat": 21.118,
+            "lng": 79.005,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Bitborgaon Lake Area",
+            "lat": 21.115,
+            "lng": 78.998,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Bhivkund Dam Approach",
+            "lat": 21.112,
+            "lng": 78.992,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Hingna Bus Stand Approach",
+            "lat": 21.108,
+            "lng": 79.008,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Wanadongri College Road",
+            "lat": 21.105,
+            "lng": 79.012,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "MIDC Peripheral Road",
+            "lat": 21.12,
+            "lng": 79.018,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Hingna Bypass Dark Zone",
+            "lat": 21.113,
+            "lng": 79.003,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Engineering Campus Rear",
+            "lat": 21.106,
+            "lng": 79.005,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Hingna Industrial Fringe N",
+            "lat": 21.122,
+            "lng": 79.01,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Digdoh-Hingna Link",
+            "lat": 21.119,
+            "lng": 79.02,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "MIHAN Sector 9 Approach",
+            "lat": 21.086,
+            "lng": 79.058,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "MIHAN Sector 12 Vacant",
+            "lat": 21.088,
+            "lng": 79.062,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "MIHAN Sector 17 Stretch",
+            "lat": 21.085,
+            "lng": 79.055,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "MIHAN Outer Ring Rd",
+            "lat": 21.083,
+            "lng": 79.07,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Khapri-MIHAN Link Road",
+            "lat": 21.087,
+            "lng": 79.065,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "SEZ Internal Road A",
+            "lat": 21.084,
+            "lng": 79.06,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "MIHAN Gate Approach S",
+            "lat": 21.082,
+            "lng": 79.068,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "SEZ Highway Connector",
+            "lat": 21.081,
+            "lng": 79.075,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Seminary Hills Dark Zone",
+            "lat": 21.143,
+            "lng": 79.043,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Ambazari Garden Periphery",
+            "lat": 21.137,
+            "lng": 79.047,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Walkers' Street Night Zone",
+            "lat": 21.14,
+            "lng": 79.042,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Telangkhedi Road Stretch",
+            "lat": 21.145,
+            "lng": 79.04,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Gorewada Lake Surrounds",
+            "lat": 21.18,
+            "lng": 79.05,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Behind Empress Mall Zone",
+            "lat": 21.146,
+            "lng": 79.078,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Old Pardi Naka Square",
+            "lat": 21.157,
+            "lng": 79.125,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Hanuman Mandir Sq (Pardi)",
+            "lat": 21.158,
+            "lng": 79.122,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Near Prakash High School",
+            "lat": 21.159,
+            "lng": 79.118,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Kalamna Market Backroad",
+            "lat": 21.154,
+            "lng": 79.128,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "APMC Rear Access Road",
+            "lat": 21.156,
+            "lng": 79.132,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Yashodhara Industrial Ln",
+            "lat": 21.161,
+            "lng": 79.115,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Kamptee Road Dark Stretch",
+            "lat": 21.177,
+            "lng": 79.092,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Ashi Nagar Construction Zone",
+            "lat": 21.178,
+            "lng": 79.088,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Northern Semi-Industrial",
+            "lat": 21.179,
+            "lng": 79.086,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Automotive Sq Backroad",
+            "lat": 21.184,
+            "lng": 79.075,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Koradi Road Isolated",
+            "lat": 21.19,
+            "lng": 79.073,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Outer Ring - West Sector",
+            "lat": 21.13,
+            "lng": 79.025,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Outer Ring - South Sector",
+            "lat": 21.095,
+            "lng": 79.085,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Outer Ring - East Sector",
+            "lat": 21.14,
+            "lng": 79.135,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Outer Ring - North Sector",
+            "lat": 21.185,
+            "lng": 79.065,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Outer Ring - NE Junction",
+            "lat": 21.175,
+            "lng": 79.11,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Gandhibagh Narrow Lanes",
+            "lat": 21.153,
+            "lng": 79.097,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Satranjipura After-Dark",
+            "lat": 21.156,
+            "lng": 79.104,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Marvadi Chowk Night Zone",
+            "lat": 21.157,
+            "lng": 79.106,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Old Sutgirni Factory Area",
+            "lat": 21.1485,
+            "lng": 79.08,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Wadi-Amravati Rd Industrial",
+            "lat": 21.158,
+            "lng": 79.028,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Civil Lines Isolated Park",
+            "lat": 21.154,
+            "lng": 79.07,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Dhantoli Railway Crossing",
+            "lat": 21.137,
+            "lng": 79.079,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Nandanvan Colony Edge",
+            "lat": 21.146,
+            "lng": 79.113,
+            "description": "",
+            "contact": ""
+        }
+    ],
+    "tactical_units": [
+        {
+            "name": "Bharosa Cell HQ",
+            "lat": 21.1465,
+            "lng": 79.082,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Damini Squad Base 1",
+            "lat": 21.144,
+            "lng": 79.084,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Damini Squad Patrol Zone - MIHAN",
+            "lat": 21.09,
+            "lng": 79.065,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Damini Squad Patrol Zone - Hingna",
+            "lat": 21.115,
+            "lng": 79.015,
+            "description": "",
+            "contact": ""
+        },
+        {
+            "name": "Damini Squad Patrol Zone - Seminary Hills",
+            "lat": 21.142,
+            "lng": 79.045,
+            "description": "",
+            "contact": ""
+        }
+    ],
+    "safe_zones": [
+        {
+            "name": "Laxmi Nagar",
+            "lat": 21.155,
+            "lng": 79.055,
+            "description": "",
+            "contact": "",
+            "risk": ""
+        },
+        {
+            "name": "Dharampeth",
+            "lat": 21.148,
+            "lng": 79.065,
+            "description": "",
+            "contact": "",
+            "risk": ""
+        },
+        {
+            "name": "Hanuman Nagar",
+            "lat": 21.13,
+            "lng": 79.085,
+            "description": "",
+            "contact": "",
+            "risk": ""
+        },
+        {
+            "name": "Dhantoli",
+            "lat": 21.138,
+            "lng": 79.078,
+            "description": "",
+            "contact": "",
+            "risk": ""
+        },
+        {
+            "name": "Nehru Nagar",
+            "lat": 21.125,
+            "lng": 79.07,
+            "description": "",
+            "contact": "",
+            "risk": ""
+        },
+        {
+            "name": "Gandhibagh",
+            "lat": 21.152,
+            "lng": 79.095,
+            "description": "",
+            "contact": "",
+            "risk": ""
+        },
+        {
+            "name": "Satranjipura",
+            "lat": 21.156,
+            "lng": 79.105,
+            "description": "",
+            "contact": "",
+            "risk": ""
+        },
+        {
+            "name": "Lakadganj",
+            "lat": 21.162,
+            "lng": 79.115,
+            "description": "",
+            "contact": "",
+            "risk": ""
+        },
+        {
+            "name": "Ashi Nagar",
+            "lat": 21.175,
+            "lng": 79.09,
+            "description": "",
+            "contact": "",
+            "risk": ""
+        },
+        {
+            "name": "Mangalwari",
+            "lat": 21.168,
+            "lng": 79.08,
+            "description": "",
+            "contact": "",
+            "risk": ""
+        }
+    ]
+}

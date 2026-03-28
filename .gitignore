@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+__pycache__/
+
+# Environment
+.env
+
+# Build
+dist/
+build/
+
+# Large binaries
+*.exe
+
+# Logs
+*.log
+install.log
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
