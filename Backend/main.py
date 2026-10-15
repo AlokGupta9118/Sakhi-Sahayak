@@ -256,6 +256,59 @@ async def danger_zones():
     return load_safety_data().get("danger_zones", [])
 
 
+@api.get("/api/metro-routes")
+async def get_metro_routes():
+    """Fetch Nagpur Metro route geometry through the backend."""
+    query = """
+    [out:json][timeout:25];
+    (
+      relation(9571557);
+      relation(10659365);
+    );
+    out geom;
+    """
+
+    endpoints = [
+        "https://overpass-api.de/api/interpreter",
+        "https://overpass.kumi.systems/api/interpreter",
+    ]
+
+    last_error = None
+
+    async with httpx.AsyncClient(
+        timeout=30.0,
+        follow_redirects=True,
+        headers={"User-Agent": "Sakhi-Sahayak/1.0"},
+    ) as client:
+        for endpoint in endpoints:
+            try:
+                response = await client.post(
+                    endpoint,
+                    data={"data": query},
+                )
+                response.raise_for_status()
+
+                result = response.json()
+
+                if not isinstance(result.get("elements"), list):
+                    raise ValueError("Invalid Overpass response")
+
+                return result
+
+            except (httpx.HTTPError, ValueError) as exc:
+                last_error = exc
+                logger.warning(
+                    "Metro route request failed for %s: %s",
+                    endpoint,
+                    exc,
+                )
+
+    raise HTTPException(
+        status_code=502,
+        detail="Metro route data is temporarily unavailable.",
+    )
+
+
 @api.get("/api/safety-data")
 async def safety_data():
     """Return all geospatial layers for the frontend map (zones, services, and POIs)."""
