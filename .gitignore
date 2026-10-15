@@ -1,0 +1,64 @@
+﻿# Secrets and environment configuration
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Frontend dependencies and build output
+node_modules/
+dist/
+build/
+.vite/
+coverage/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local databases and runtime files
+*.db
+*.sqlite
+*.sqlite3
+evidence/
+uploads/
+*.log
+
+# Generated road-network cache
+road_network.graphml
+*.graphml
+
+# Editors and operating systems
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary files
+*.tmp
+*.bak
+
+# Additional generated and sensitive backend files
+Backend/.env
+Backend/.env.*
+Backend/cache/
+Backend/evidence/
+Backend/sakhi_sahayak.db
+Backend/road_network.graphml
+Backend/*.log
+
+# Python-generated files
+**/__pycache__/
+**/.pytest_cache/
+**/.venv/
+
+# Local frontend environment files
+Client/.env
+Client/.env.*
+!Client/.env.example

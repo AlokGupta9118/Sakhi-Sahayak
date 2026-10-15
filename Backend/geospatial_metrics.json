@@ -1,0 +1,28 @@
+{
+  "source_records": 201,
+  "records_with_valid_coordinates": 201,
+  "coordinate_coverage_percent": 100.0,
+  "source_categories": 9,
+  "dbscan_danger_zone_clusters": 7,
+  "black_spots": 74,
+  "police_stations": 28,
+  "metro_stations": 38,
+  "hospitals": 7,
+  "educational_institutions": 14,
+  "hostels_pgs": 17,
+  "corporate_areas": 8,
+  "tactical_units": 5,
+  "labeled_nmc_risk_zones": 10,
+  "source_category_counts": {
+    "nmc_zone": 10,
+    "police_station": 28,
+    "tactical_unit": 5,
+    "metro_station": 38,
+    "black_spot": 74,
+    "educational_institution": 14,
+    "hostel_pg": 17,
+    "hospital": 7,
+    "mihan_corporate": 8
+  },
+  "caveat": "Dataset coverage and unsupervised cluster counts only; not predictive accuracy or proof of real-world safety."
+}
