@@ -32,7 +32,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={user ? <Navigate to="/dashboard" replace /> : <Login onLogin={login} />} />
-      <Route path="/dashboard" element={user ? <Dashboard user={user} onLogout={logout} /> : <Navigate to="/login" replace />} />
+      <Route path="/dashboard" element={user ? <Dashboard user={user} onUpdateUser={setUser} onLogout={logout} /> : <Navigate to="/login" replace />} />
       <Route path="/analytics" element={user ? <Analytics user={user} onLogout={logout} /> : <Navigate to="/login" replace />} />
       <Route path="/community" element={user ? <Community user={user} onLogout={logout} /> : <Navigate to="/login" replace />} />
       <Route path="/family" element={user ? <FamilyDashboard /> : <Navigate to="/login" replace />} />

@@ -62,6 +62,10 @@ import {
 
   Users,
 
+  Edit3,
+
+  Mail,
+
   X,
 
 } from 'lucide-react';
@@ -299,7 +303,7 @@ function EvidencePanel({ initialTrackingId }) {
 
 
 
-export default function Dashboard({ user = {}, onLogout }) {
+export default function Dashboard({ user = {}, onLogout, onUpdateUser }) {
 
   const navigate = useNavigate();
 
@@ -328,6 +332,59 @@ export default function Dashboard({ user = {}, onLogout }) {
   const [refreshing, setRefreshing] = useState(false);
 
   const [layers, setLayers] = useState(DEFAULT_LAYERS);
+
+  const [showEditContact, setShowEditContact] = useState(false);
+  const [contactForm, setContactForm] = useState({
+    emergencyName: user?.emergency_name || user?.emergencyName || '',
+    emergencyPhone: user?.emergency_phone || user?.emergencyPhone || '',
+    emergencyEmail: user?.emergency_email || user?.emergencyEmail || '',
+  });
+  const [contactUpdating, setContactUpdating] = useState(false);
+  const [contactFeedback, setContactFeedback] = useState('');
+
+  useEffect(() => {
+    setContactForm({
+      emergencyName: user?.emergency_name || user?.emergencyName || '',
+      emergencyPhone: user?.emergency_phone || user?.emergencyPhone || '',
+      emergencyEmail: user?.emergency_email || user?.emergencyEmail || '',
+    });
+  }, [user]);
+
+  const handleSaveContact = async (e) => {
+    e.preventDefault();
+    setContactUpdating(true);
+    setContactFeedback('');
+    try {
+      const payload = {
+        phone: user?.phone || user?.userPhone,
+        name: user?.name || user?.userName,
+        emergencyName: contactForm.emergencyName.trim(),
+        emergencyPhone: contactForm.emergencyPhone.trim().replace(/\D/g, '').slice(0, 10),
+        emergencyEmail: contactForm.emergencyEmail.trim(),
+      };
+      await api.post('/api/update-emergency-contact', payload);
+      const updatedUser = {
+        ...user,
+        emergency_name: payload.emergencyName,
+        emergency_phone: payload.emergencyPhone,
+        emergency_email: payload.emergencyEmail,
+        emergencyName: payload.emergencyName,
+        emergencyPhone: payload.emergencyPhone,
+        emergencyEmail: payload.emergencyEmail,
+      };
+      if (onUpdateUser) onUpdateUser(updatedUser);
+      localStorage.setItem('sakhi-sahayak-user', JSON.stringify(updatedUser));
+      setContactFeedback('Emergency contact saved successfully!');
+      setTimeout(() => {
+        setShowEditContact(false);
+        setContactFeedback('');
+      }, 1200);
+    } catch {
+      setContactFeedback('Failed to update contact. Please try again.');
+    } finally {
+      setContactUpdating(false);
+    }
+  };
 
   const [showLayers, setShowLayers] = useState(false);
 
@@ -749,7 +806,30 @@ export default function Dashboard({ user = {}, onLogout }) {
 
     <main className="main-area">
 
-      <header className="topbar"><div className="topbar-left"><button className="icon-button mobile-menu-button" aria-label="Open menu" onClick={() => setMobileMenu(true)}><Menu size={20} /></button><div className="breadcrumb">Sakhi-Sahayak <span>/</span> <b>{navItems.find((item) => item.id === tab)?.label || 'Overview'}</b></div></div><div className="topbar-actions"><span className={`connection-chip ${socketConnected ? 'connected' : 'disconnected'}`}><span />{socketConnected ? 'Connected' : 'Reconnecting'}</span><button className="icon-button" title="Refresh safety data" onClick={handleRefresh} disabled={refreshing}><RefreshCw size={17} className={refreshing ? 'spin' : ''} /></button><button className="avatar avatar-small" title={userName} onClick={() => setActiveTab('profile')}>{userName.trim().slice(0, 1).toUpperCase()}</button></div></header>
+      <header className="topbar">
+        <div className="topbar-left">
+          <button className="icon-button mobile-menu-button" aria-label="Open menu" onClick={() => setMobileMenu(true)}>
+            <Menu size={20} />
+          </button>
+          <div className="breadcrumb">
+            <span className="breadcrumb-brand">Sakhi-Sahayak</span>
+            <span className="breadcrumb-slash">/</span>
+            <b>{navItems.find((item) => item.id === tab)?.label || 'Overview'}</b>
+          </div>
+        </div>
+        <div className="topbar-actions">
+          <span className={`connection-chip ${socketConnected ? 'connected' : 'disconnected'}`}>
+            <span className="connection-indicator" />
+            <span className="connection-label">{socketConnected ? 'Connected' : 'Reconnecting'}</span>
+          </span>
+          <button className="icon-button" title="Refresh safety data" onClick={handleRefresh} disabled={refreshing}>
+            <RefreshCw size={17} className={refreshing ? 'spin' : ''} />
+          </button>
+          <button className="avatar avatar-small" title={userName} onClick={() => setActiveTab('profile')}>
+            {userName.trim().slice(0, 1).toUpperCase()}
+          </button>
+        </div>
+      </header>
 
       {notice && <div className="inline-notice"><CheckCircle2 size={16} />{notice}<button onClick={() => setNotice('')} aria-label="Dismiss notice"><X size={15} /></button></div>}
 
@@ -761,7 +841,31 @@ export default function Dashboard({ user = {}, onLogout }) {
 
         <section className="welcome-row"><div><span className="eyebrow"><span className="eyebrow-dot" /> YOUR PERSONAL SAFETY DASHBOARD</span><h1>Good to see you, <span>{userName.split(' ')[0]}.</span></h1><p>Stay aware of your surroundings, know your support options, and plan with better information.</p></div><div className="welcome-date"><Clock3 size={16} /><span>{new Intl.DateTimeFormat('en-IN', { weekday: 'short', day: 'numeric', month: 'short' }).format(new Date())}</span></div></section>
 
-        <section className={`status-banner ${isSarthiActive ? 'sarthi-active-banner' : ''}`}><div className="status-banner-icon"><ShieldCheck size={23} /></div><div className="status-banner-copy"><b>{isSOS ? 'Emergency workflow active' : isSarthiActive ? 'Sarthi movement reminders are on' : 'You are in control of your safety tools'}</b><p>{isSOS ? `Current agent state: ${prettyStatus(agentState.status)}. If you need immediate help, call 112.` : isSarthiActive ? `Sarthi is active · movement check: 15 seconds · microphone: ${sarthiMicStatus === 'listening' ? 'listening' : sarthiMicStatus === 'blocked' ? 'permission needed' : sarthiMicStatus === 'error' ? 'unavailable' : 'starting'}.` : 'Location and microphone features run only with browser permission and your action.'}</p></div><div className="status-banner-actions"><button className={`button ${isSarthiActive ? 'button-secondary sarthi-glow-button' : 'button-ghost'}`} onClick={handleSarthi} disabled={!isSarthiActive && locationStatus !== 'live'}><Activity size={16} />{isSarthiActive ? 'Pause Sarthi' : 'Enable Sarthi'}</button><button className={sarthiMicStatus === 'listening' ? 'button button-secondary sarthi-glow-button' : 'button button-ghost'} onClick={() => void toggleSarthiMic()} disabled={!isSarthiActive}>{sarthiMicStatus === 'listening' ? 'Turn Voice Guard off' : 'Enable Voice Guard'}</button>{['THREAT_DETECTED', 'INTERCEPT_COUNTDOWN'].includes(agentState?.status) && <button className="button button-ghost" onClick={cancelIntercept}><CheckCircle2 size={16} /> I'm safe</button>}<button className="button button-danger" onClick={triggerSOS}><Siren size={17} /> SOS</button></div></section>
+        <section className={`status-banner ${isSarthiActive ? 'sarthi-active-banner' : ''}`}>
+          <div className="status-banner-header">
+            <div className="status-banner-icon"><ShieldCheck size={23} /></div>
+            <div className="status-banner-copy">
+              <b>{isSOS ? 'Emergency workflow active' : isSarthiActive ? 'Sarthi movement reminders are on' : 'You are in control of your safety tools'}</b>
+              <p>{isSOS ? `Current agent state: ${prettyStatus(agentState.status)}. If you need immediate help, call 112.` : isSarthiActive ? `Sarthi is active · movement check: 15 seconds · microphone: ${sarthiMicStatus === 'listening' ? 'listening' : sarthiMicStatus === 'blocked' ? 'permission needed' : sarthiMicStatus === 'error' ? 'unavailable' : 'starting'}.` : 'Location and microphone features run only with browser permission and your action.'}</p>
+            </div>
+          </div>
+          <div className="status-banner-actions">
+            <button className={`button ${isSarthiActive ? 'button-secondary sarthi-glow-button' : 'button-ghost'}`} onClick={handleSarthi} disabled={!isSarthiActive && locationStatus !== 'live'}>
+              <Activity size={16} />{isSarthiActive ? 'Pause Sarthi' : 'Enable Sarthi'}
+            </button>
+            <button className={sarthiMicStatus === 'listening' ? 'button button-secondary sarthi-glow-button' : 'button button-ghost'} onClick={() => void toggleSarthiMic()} disabled={!isSarthiActive}>
+              {sarthiMicStatus === 'listening' ? 'Turn Voice Guard off' : 'Enable Voice Guard'}
+            </button>
+            {['THREAT_DETECTED', 'INTERCEPT_COUNTDOWN'].includes(agentState?.status) && (
+              <button className="button button-ghost" onClick={cancelIntercept}>
+                <CheckCircle2 size={16} /> I'm safe
+              </button>
+            )}
+            <button className="button button-danger sos-banner-btn" onClick={triggerSOS}>
+              <Siren size={17} /> SOS
+            </button>
+          </div>
+        </section>
 
         <section className="metrics-grid">
 
@@ -827,11 +931,11 @@ export default function Dashboard({ user = {}, onLogout }) {
 
 
 
-      {tab === 'emergency' && <div className="page-content narrow-page animate-fade"><section className="welcome-row"><div><span className="eyebrow">YOUR SUPPORT NETWORK</span><h1>Emergency support</h1><p>Review the contact registered with your account and find mapped support nearby.</p></div></section><section className="emergency-callout"><div className="emergency-callout-icon"><Siren size={27} /></div><div><h2>In immediate danger?</h2><p>Call India's emergency response number directly. Do not rely on the app alone.</p></div><a className="button button-danger" href="tel:112"><Phone size={17} /> Call 112</a></section><div className="support-detail-grid"><section className="panel"><div className="panel-heading"><div className="heading-icon tone-violet"><Users size={19} /></div><div><h3>Trusted emergency contact</h3><p>Information provided during account creation</p></div></div>{user?.emergency_name || user?.emergency_phone ? <div className="contact-card"><div className="avatar avatar-contact">{(user.emergency_name || 'T').slice(0, 1).toUpperCase()}</div><div><b>{user.emergency_name || 'Trusted contact'}</b><p>{user.emergency_phone || 'No phone number saved'}</p></div>{user.emergency_phone && <a className="icon-button call-contact" href={`tel:${user.emergency_phone}`} aria-label="Call trusted contact"><Phone size={18} /></a>}</div> : <div className="empty-state"><Users size={28} /><b>No trusted contact on this profile</b><p>Sign up with a trusted contact number, or use your phone's contacts directly.</p></div>}</section><section className="panel"><div className="panel-heading"><div className="heading-icon tone-blue"><MapPin size={19} /></div><div><h3>Nearest support</h3><p>Calculated from the latest available coordinates</p></div></div>{(nearestStation || nearest?.police_station) ? <div className="support-list-item"><Shield size={18} /><div><b>{(nearestStation || nearest.police_station).name}</b><small>{(nearestStation || nearest.police_station).distanceText || 'Nearest mapped station'}</small></div>{(nearestStation || nearest.police_station).phone && <a href={`tel:${(nearestStation || nearest.police_station).phone}`} className="icon-button"><Phone size={16} /></a>}</div> : null}{nearest?.hospital ? <div className="support-list-item"><Hospital size={18} /><div><b>{nearest.hospital.name}</b><small>{nearest.hospital.distanceText}</small></div>{nearest.hospital.phone && <a href={`tel:${nearest.hospital.phone}`} className="icon-button"><Phone size={16} /></a>}</div> : null}{!(nearestStation || nearest?.police_station) && !nearest?.hospital && <p className="helper-text">Support locations will appear once the backend returns nearby results.</p>}<a className="text-link" href={`https://www.google.com/maps/search/?api=1&query=${location.lat},${location.lng}`} target="_blank" rel="noreferrer"><MapPin size={15} /> Open current location in Maps</a></section></div><VoiceCheck user={user} location={location} connected={socketConnected} agentState={agentState} onAnalysis={setVoiceAnalysis} /><EvidencePanel initialTrackingId={agentState?.trackingId} /></div>}
+      {tab === 'emergency' && <div className="page-content narrow-page animate-fade"><section className="welcome-row"><div><span className="eyebrow">YOUR SUPPORT NETWORK</span><h1>Emergency support</h1><p>Review the contact registered with your account and find mapped support nearby.</p></div></section><section className="emergency-callout"><div className="emergency-callout-icon"><Siren size={27} /></div><div><h2>In immediate danger?</h2><p>Call India's emergency response number directly. Do not rely on the app alone.</p></div><a className="button button-danger" href="tel:112"><Phone size={17} /> Call 112</a></section><div className="support-detail-grid"><section className="panel"><div className="panel-heading"><div className="heading-icon tone-violet"><Users size={19} /></div><div style={{ flex: 1 }}><h3>Trusted emergency contact</h3><p>Alerts & live locations are sent directly here</p></div><button className="icon-button" onClick={() => setShowEditContact(true)} title="Update emergency contact"><Edit3 size={16} /></button></div>{user?.emergency_name || user?.emergency_phone || user?.emergency_email ? <div className="contact-card"><div className="avatar avatar-contact">{(user.emergency_name || 'T').slice(0, 1).toUpperCase()}</div><div style={{ flex: 1, minWidth: 0 }}><b>{user.emergency_name || 'Trusted contact'}</b><p style={{ margin: '2px 0 0' }}>{user.emergency_phone || 'No phone number saved'}</p>{user.emergency_email && <p className="contact-email" style={{ fontSize: '0.85rem', color: 'var(--text-muted, #94a3b8)', marginTop: '4px', wordBreak: 'break-all' }}>📧 {user.emergency_email}</p>}</div><div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}><button className="icon-button" onClick={() => setShowEditContact(true)} title="Edit contact"><Edit3 size={15} /></button>{user.emergency_phone && <a className="icon-button call-contact" href={`tel:${user.emergency_phone}`} aria-label="Call trusted contact"><Phone size={18} /></a>}</div></div> : <div className="empty-state"><Users size={28} /><b>No trusted contact configured</b><p>Add a trusted emergency contact email and phone number.</p><button className="button button-ghost" style={{ marginTop: '8px' }} onClick={() => setShowEditContact(true)}><Edit3 size={15} /> Add Emergency Contact</button></div>}</section><section className="panel"><div className="panel-heading"><div className="heading-icon tone-blue"><MapPin size={19} /></div><div><h3>Nearest support</h3><p>Calculated from the latest available coordinates</p></div></div>{(nearestStation || nearest?.police_station) ? <div className="support-list-item"><Shield size={18} /><div><b>{(nearestStation || nearest.police_station).name}</b><small>{(nearestStation || nearest.police_station).distanceText || 'Nearest mapped station'}</small></div>{(nearestStation || nearest.police_station).phone && <a href={`tel:${(nearestStation || nearest.police_station).phone}`} className="icon-button"><Phone size={16} /></a>}</div> : null}{nearest?.hospital ? <div className="support-list-item"><Hospital size={18} /><div><b>{nearest.hospital.name}</b><small>{nearest.hospital.distanceText}</small></div>{nearest.hospital.phone && <a href={`tel:${nearest.hospital.phone}`} className="icon-button"><Phone size={16} /></a>}</div> : null}{!(nearestStation || nearest?.police_station) && !nearest?.hospital && <p className="helper-text">Support locations will appear once the backend returns nearby results.</p>}<a className="text-link" href={`https://www.google.com/maps/search/?api=1&query=${location.lat},${location.lng}`} target="_blank" rel="noreferrer"><MapPin size={15} /> Open current location in Maps</a></section></div><VoiceCheck user={user} location={location} connected={socketConnected} agentState={agentState} onAnalysis={setVoiceAnalysis} /><EvidencePanel initialTrackingId={agentState?.trackingId} /></div>}
 
 
 
-      {tab === 'profile' && <div className="page-content narrow-page animate-fade"><section className="welcome-row"><div><span className="eyebrow">ACCOUNT & PREFERENCES</span><h1>Your profile</h1><p>Details currently available from your local backend account.</p></div></section><section className="panel profile-panel"><div className="profile-hero"><div className="avatar avatar-large">{userName.trim().slice(0, 1).toUpperCase()}</div><div><h2>{userName}</h2><p>{user?.demo ? 'Demo session — changes are not saved to an account.' : `Account ID ${user?.id ?? 'available'}`}</p><span className={`status-pill ${user?.demo ? '' : 'status-live'}`}><span />{user?.demo ? 'Demo' : 'Account loaded'}</span></div></div><div className="profile-fields"><div><small>Phone number</small><b>{user?.phone || user?.userPhone || 'Not provided'}</b></div><div><small>Emergency contact</small><b>{user?.emergency_name || 'Not configured'}</b></div><div><small>Emergency contact phone</small><b>{user?.emergency_phone || 'Not configured'}</b></div></div><div className="profile-footer"><p>Account and contact updates are not exposed by the current backend API.</p><button className="button button-ghost" onClick={onLogout}><LogOut size={16} /> Sign out</button></div></section><section className="panel connection-panel"><div className="panel-heading"><div className="heading-icon tone-green"><Radio size={19} /></div><div><h3>Connection status</h3><p>Live connection health from this browser</p></div></div><div className="connection-status-row"><span>Socket.IO</span><b className={socketConnected ? 'text-green' : 'text-rose'}>{socketConnected ? 'Connected' : 'Disconnected'}</b></div><div className="connection-status-row"><span>GPS</span><b>{locationStatus === 'live' ? 'Live location' : locationStatus === 'denied' ? 'Permission denied' : 'Approximate / unavailable'}</b></div><div className="connection-status-row"><span>Safe route engine</span><b>{routeHealth?.ready ? 'Dependencies ready' : 'Check backend setup'}</b></div><button className="button button-ghost" onClick={() => navigate('/analytics')}>View data diagnostics <ArrowRight size={16} /></button></section></div>}
+      {tab === 'profile' && <div className="page-content narrow-page animate-fade"><section className="welcome-row"><div><span className="eyebrow">ACCOUNT & PREFERENCES</span><h1>Your profile</h1><p>Details currently available from your local backend account.</p></div></section><section className="panel profile-panel"><div className="profile-hero"><div className="avatar avatar-large">{userName.trim().slice(0, 1).toUpperCase()}</div><div><h2>{userName}</h2><p>{user?.demo ? 'Demo session — changes are not saved to an account.' : `Account ID ${user?.id ?? 'available'}`}</p><span className={`status-pill ${user?.demo ? '' : 'status-live'}`}><span />{user?.demo ? 'Demo' : 'Account loaded'}</span></div></div><div className="profile-fields"><div><small>Phone number / ID</small><b>{user?.phone || user?.userPhone || 'Not provided'}</b></div><div><small>Emergency contact person</small><b>{user?.emergency_name || user?.emergencyName || 'Not configured'}</b></div><div><small>Emergency contact phone</small><b>{user?.emergency_phone || user?.emergencyPhone || 'Not configured'}</b></div><div><small>Emergency contact email</small><b style={{ wordBreak: 'break-all' }}>{user?.emergency_email || user?.emergencyEmail || 'Not configured'}</b></div></div><div className="profile-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}><button className="button button-primary" onClick={() => setShowEditContact(true)}><Edit3 size={16} /> Update Emergency Contact</button><button className="button button-ghost" onClick={onLogout}><LogOut size={16} /> Sign out</button></div></section><section className="panel connection-panel"><div className="panel-heading"><div className="heading-icon tone-green"><Radio size={19} /></div><div><h3>Connection status</h3><p>Live connection health from this browser</p></div></div><div className="connection-status-row"><span>Socket.IO</span><b className={socketConnected ? 'text-green' : 'text-rose'}>{socketConnected ? 'Connected' : 'Disconnected'}</b></div><div className="connection-status-row"><span>GPS</span><b>{locationStatus === 'live' ? 'Live location' : locationStatus === 'denied' ? 'Permission denied' : 'Approximate / unavailable'}</b></div><div className="connection-status-row"><span>Safe route engine</span><b>{routeHealth?.ready ? 'Dependencies ready' : 'Check backend setup'}</b></div><button className="button button-ghost" onClick={() => navigate('/analytics')}>View data diagnostics <ArrowRight size={16} /></button></section></div>}
 
 
 
@@ -840,6 +944,83 @@ export default function Dashboard({ user = {}, onLogout }) {
     </main>
 
     {isSarthiAlarm && <div className="modal-backdrop"><section className="sarthi-modal"><div className="sarthi-modal-icon"><AlertTriangle size={30} /></div><span className="eyebrow">SARTHI CHECK-IN</span><h2>Are you okay?</h2><p>No meaningful GPS movement was detected. Confirm your safety before the countdown ends.</p><div className="sarthi-countdown" aria-live="polite">Emergency escalation in <strong>{checkInSeconds}s</strong></div><div className="modal-actions"><button className="button button-ghost" onClick={() => { setCheckInHandled(true); cancelSarthiAlarm(); }}>Dismiss reminder</button><button className="button button-primary" onClick={() => { setCheckInHandled(true); confirmSafe(); }}><CheckCircle2 size={17} /> I'm safe</button></div><button className="modal-emergency-link" onClick={() => { setCheckInHandled(true); cancelSarthiAlarm(); triggerSOS({ skipConfirm: true }); }}><Siren size={16} /> I need emergency help</button></section></div>}
+
+    {showEditContact && (
+      <div className="modal-backdrop" onClick={() => setShowEditContact(false)}>
+        <section className="sarthi-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '440px', width: '92%' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <div>
+              <span className="eyebrow">SAFETY NETWORK</span>
+              <h2 style={{ fontSize: '1.25rem', margin: '4px 0 0' }}>Emergency Contact</h2>
+            </div>
+            <button className="icon-button" onClick={() => setShowEditContact(false)} aria-label="Close modal">
+              <X size={18} />
+            </button>
+          </div>
+          <p style={{ fontSize: '0.88rem', color: 'var(--text-muted, #94a3b8)', marginBottom: '16px' }}>
+            When SOS is triggered, distress emails and live tracking are dispatched directly to this recipient.
+          </p>
+          <form onSubmit={handleSaveContact} className="auth-form" style={{ gap: '14px' }}>
+            <label>
+              Contact Person Name
+              <input
+                type="text"
+                value={contactForm.emergencyName}
+                onChange={(e) => setContactForm((prev) => ({ ...prev, emergencyName: e.target.value }))}
+                placeholder="e.g. Papa, Sister, Rahul"
+                required
+              />
+            </label>
+            <label>
+              Emergency Mobile Number
+              <div className="input-with-icon">
+                <Phone size={17} />
+                <input
+                  type="tel"
+                  value={contactForm.emergencyPhone}
+                  onChange={(e) => setContactForm((prev) => ({ ...prev, emergencyPhone: e.target.value.replace(/\D/g, '').slice(0, 10) }))}
+                  placeholder="10-digit mobile number"
+                  inputMode="numeric"
+                  maxLength={10}
+                  required
+                />
+              </div>
+              <small className="field-hint">Only enter 10 digits without +91 or country code.</small>
+            </label>
+            <label>
+              Emergency Contact Email
+              <div className="input-with-icon">
+                <Mail size={17} />
+                <input
+                  type="email"
+                  value={contactForm.emergencyEmail}
+                  onChange={(e) => setContactForm((prev) => ({ ...prev, emergencyEmail: e.target.value }))}
+                  placeholder="guardian@example.com"
+                  required
+                />
+              </div>
+              <small className="field-hint">SOS emails will be delivered directly to this email address.</small>
+            </label>
+
+            {contactFeedback && (
+              <div style={{ fontSize: '0.88rem', fontWeight: 600, color: contactFeedback.includes('successfully') ? '#10b981' : '#f43f5e' }}>
+                {contactFeedback}
+              </div>
+            )}
+
+            <div className="modal-actions" style={{ marginTop: '8px' }}>
+              <button type="button" className="button button-ghost" onClick={() => setShowEditContact(false)}>
+                Cancel
+              </button>
+              <button type="submit" className="button button-primary" disabled={contactUpdating}>
+                {contactUpdating ? <RefreshCw size={16} className="spin" /> : <CheckCircle2 size={16} />}
+                Save Contact
+              </button>
+            </div>
+          </form>
+        </section>
+      </div>
+    )}
 
   </div>;
 

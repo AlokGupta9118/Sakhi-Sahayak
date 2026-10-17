@@ -38,6 +38,18 @@ function getUserPhone(user) {
   return user?.phone || user?.userPhone || '';
 }
 
+function getUserEmergencyEmail(user) {
+  return user?.emergency_email || user?.emergencyEmail || '';
+}
+
+function getUserEmergencyPhone(user) {
+  return user?.emergency_phone || user?.emergencyPhone || '';
+}
+
+function getUserEmergencyName(user) {
+  return user?.emergency_name || user?.emergencyName || '';
+}
+
 export function useTracker(user = {}) {
   const [location, setLocation] = useState({
     ...NAGPUR,
@@ -301,6 +313,9 @@ export function useTracker(user = {}) {
         body.append('socketId', socket.id);
         body.append('userName', getUserName(currentUser));
         body.append('userPhone', getUserPhone(currentUser));
+        body.append('emergencyEmail', getUserEmergencyEmail(currentUser));
+        body.append('emergencyPhone', getUserEmergencyPhone(currentUser));
+        body.append('emergencyName', getUserEmergencyName(currentUser));
         body.append('lat', String(currentLocation.lat));
         body.append('lng', String(currentLocation.lng));
 
@@ -362,6 +377,9 @@ export function useTracker(user = {}) {
       socket.emit('start-monitoring', {
         userName: getUserName(currentUser),
         userPhone: getUserPhone(currentUser),
+        emergencyEmail: getUserEmergencyEmail(currentUser),
+        emergencyPhone: getUserEmergencyPhone(currentUser),
+        emergencyName: getUserEmergencyName(currentUser),
         location: {
           lat: currentLocation.lat,
           lng: currentLocation.lng,
@@ -659,6 +677,9 @@ export function useTracker(user = {}) {
         isSOS: true,
         userName: getUserName(currentUser),
         userPhone: getUserPhone(currentUser),
+        emergencyEmail: getUserEmergencyEmail(currentUser),
+        emergencyPhone: getUserEmergencyPhone(currentUser),
+        emergencyName: getUserEmergencyName(currentUser),
         timestamp: Date.now(),
       });
 
@@ -675,6 +696,9 @@ export function useTracker(user = {}) {
         lng: currentLocation.lng,
         userName: getUserName(currentUser),
         userPhone: getUserPhone(currentUser),
+        emergencyEmail: getUserEmergencyEmail(currentUser),
+        emergencyPhone: getUserEmergencyPhone(currentUser),
+        emergencyName: getUserEmergencyName(currentUser),
         severity: 'critical',
       });
     },

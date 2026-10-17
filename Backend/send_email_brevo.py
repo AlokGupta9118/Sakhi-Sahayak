@@ -33,9 +33,8 @@ import logging
 import os
 
 from datetime import datetime
-
+from pathlib import Path
 from typing import Any
-
 from zoneinfo import ZoneInfo
 
 
@@ -62,6 +61,29 @@ BREVO_SENDER_NAME = os.getenv("BREVO_SENDER_NAME", "Sakhi-Sahayak").strip()
 BREVO_EMAIL_URL = "https://api.brevo.com/v3/smtp/email"
 
 INDIA_TZ = ZoneInfo("Asia/Kolkata")
+DATABASE_FILE = Path(os.getenv("DATABASE_FILE", str(Path(__file__).resolve().parent / "sakhi_sahayak.db"))).resolve()
+
+
+def _get_emergency_contact_from_db(identifier: str | None) -> dict[str, str]:
+    if not identifier or not DATABASE_FILE.exists():
+        return {}
+    try:
+        import sqlite3
+        with sqlite3.connect(DATABASE_FILE) as conn:
+            conn.row_factory = sqlite3.Row
+            row = conn.execute(
+                "SELECT emergency_name, emergency_phone, emergency_email FROM users WHERE phone = ? OR name = ?",
+                (str(identifier).strip(), str(identifier).strip()),
+            ).fetchone()
+            if row:
+                return {
+                    "emergency_name": str(row["emergency_name"] or "").strip(),
+                    "emergency_phone": str(row["emergency_phone"] or "").strip(),
+                    "emergency_email": str(row["emergency_email"] or "").strip(),
+                }
+    except Exception:
+        pass
+    return {}
 
 
 
@@ -379,18 +401,19 @@ Sakhi-Sahayak Voice Agent • STT → Orchestrator → Email Dispatch</td></tr>
 
 
 
-async def _send_email(subject: str, html_body: str, text_body: str) -> dict[str, Any]:
+async def _send_email(subject: str, html_body: str, text_body: str, recipient: str | None = None) -> dict[str, Any]:
+    target = (str(recipient or "").strip() or TARGET_EMAIL).strip()
     if not BREVO_API_KEY:
         logger.error("[SendEmail] BREVO_API_KEY is missing; email was not sent.")
-        return {"success": False, "error": "Brevo API not configured", "recipient": TARGET_EMAIL}
+        return {"success": False, "error": "Brevo API not configured", "recipient": target}
     if not BREVO_SENDER_EMAIL or "@" not in BREVO_SENDER_EMAIL:
-        return {"success": False, "error": "BREVO_SENDER_EMAIL must be a verified sender address", "recipient": TARGET_EMAIL}
-    if not TARGET_EMAIL or "@" not in TARGET_EMAIL:
-        return {"success": False, "error": "TARGET_EMAIL/EMERGENCY_EMAIL is not configured", "recipient": TARGET_EMAIL}
+        return {"success": False, "error": "BREVO_SENDER_EMAIL must be a verified sender address", "recipient": target}
+    if not target or "@" not in target:
+        return {"success": False, "error": "Recipient emergency email is not configured", "recipient": target}
 
     payload = {
         "sender": {"name": BREVO_SENDER_NAME, "email": BREVO_SENDER_EMAIL},
-        "to": [{"email": TARGET_EMAIL}],
+        "to": [{"email": target}],
         "subject": subject,
         "htmlContent": html_body,
         "textContent": text_body,
@@ -405,17 +428,17 @@ async def _send_email(subject: str, html_body: str, text_body: str) -> dict[str,
         if response.is_success:
             result = response.json() if response.content else {}
             message_id = result.get("messageId")
-            logger.info("[SendEmail] Email accepted by Brevo; id=%s", message_id)
-            return {"success": True, "messageId": message_id, "recipient": TARGET_EMAIL}
+            logger.info("[SendEmail] Email accepted by Brevo for %s; id=%s", target, message_id)
+            return {"success": True, "messageId": message_id, "recipient": target}
         try:
             details = response.json()
         except ValueError:
             details = response.text
         logger.error("[SendEmail] Brevo failed (%s): %s", response.status_code, details)
-        return {"success": False, "error": str(details), "recipient": TARGET_EMAIL}
+        return {"success": False, "error": str(details), "recipient": target}
     except Exception as exc:
         logger.exception("[SendEmail] Email request failed")
-        return {"success": False, "error": str(exc), "recipient": TARGET_EMAIL}
+        return {"success": False, "error": str(exc), "recipient": target}
 
 
 async def send_emergency_email(alert_data: dict[str, Any]) -> dict[str, Any]:
@@ -452,7 +475,18 @@ async def send_emergency_email(alert_data: dict[str, Any]) -> dict[str, Any]:
 
     subject = f"🚨 EMERGENCY SOS — {severity} — {tracking} — Sakhi-Sahayak"
 
-    return await _send_email(subject, build_emergency_sos_html(alert_data), text_body)
+    user_emergency_email = str(
+        alert_data.get("emergencyEmail") or alert_data.get("emergency_email") or ""
+    ).strip()
+    if not user_emergency_email:
+        contact_info = _get_emergency_contact_from_db(
+            alert_data.get("userPhone") or alert_data.get("userName") or alert_data.get("phone")
+        )
+        user_emergency_email = contact_info.get("emergency_email", "")
+
+    recipient = user_emergency_email if (user_emergency_email and "@" in user_emergency_email) else TARGET_EMAIL
+
+    return await _send_email(subject, build_emergency_sos_html(alert_data), text_body, recipient=recipient)
 
 
 

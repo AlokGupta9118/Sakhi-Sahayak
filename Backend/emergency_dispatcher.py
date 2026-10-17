@@ -34,6 +34,7 @@ import os
 import re
 import time
 from datetime import datetime
+from pathlib import Path
 from typing import Any
 from zoneinfo import ZoneInfo
 
@@ -61,6 +62,29 @@ TWILIO_TRIAL_TEMPLATE = os.getenv("TWILIO_TRIAL_TEMPLATE", "").strip()
 
 RESEND_API_URL = "https://api.resend.com/emails"
 INDIA_TZ = ZoneInfo("Asia/Kolkata")
+DATABASE_FILE = Path(os.getenv("DATABASE_FILE", str(Path(__file__).resolve().parent / "sakhi_sahayak.db"))).resolve()
+
+
+def _get_emergency_contact_from_db(identifier: str | None) -> dict[str, str]:
+    if not identifier or not DATABASE_FILE.exists():
+        return {}
+    try:
+        import sqlite3
+        with sqlite3.connect(DATABASE_FILE) as conn:
+            conn.row_factory = sqlite3.Row
+            row = conn.execute(
+                "SELECT emergency_name, emergency_phone, emergency_email FROM users WHERE phone = ? OR name = ?",
+                (str(identifier).strip(), str(identifier).strip()),
+            ).fetchone()
+            if row:
+                return {
+                    "emergency_name": str(row["emergency_name"] or "").strip(),
+                    "emergency_phone": str(row["emergency_phone"] or "").strip(),
+                    "emergency_email": str(row["emergency_email"] or "").strip(),
+                }
+    except Exception:
+        pass
+    return {}
 
 _twilio_client = None
 if (
@@ -227,6 +251,15 @@ def build_emergency_email_html(alert_data: dict[str, Any]) -> str:
         if transcript
         else ""
     )
+    emergency_email = html.escape(str(alert_data.get("emergencyEmail") or alert_data.get("emergency_email") or ""))
+    emergency_name = html.escape(str(alert_data.get("emergencyName") or alert_data.get("emergency_name") or "Emergency Contact"))
+    emergency_row = (
+        f'<tr><td colspan="2" style="border-top:1px solid #334155;padding-top:10px;">'
+        f'<span style="color:#94A3B8;font-size:12px;">DESIGNATED EMERGENCY CONTACT</span><br>'
+        f'<b>{emergency_name}</b> &lt;{emergency_email}&gt;</td></tr>'
+        if emergency_email
+        else ""
+    )
     timestamp = html.escape(str(alert_data.get("timestamp") or _india_time()))
     return f"""<!DOCTYPE html>
 <html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
@@ -241,7 +274,8 @@ def build_emergency_email_html(alert_data: dict[str, Any]) -> str:
 <table width="100%" cellpadding="12" cellspacing="0" style="background:#0F172A;border-radius:12px;margin-bottom:20px;color:white;">
 <tr><td><span style="color:#94A3B8;font-size:12px;">USER</span><br><b>{user_name}</b></td>
 <td align="right"><span style="color:#94A3B8;font-size:12px;">PHONE</span><br><b>{user_phone}</b></td></tr>
-<tr><td colspan="2"><span style="color:#94A3B8;font-size:12px;">GPS COORDINATES</span><br>{coords}</td></tr></table>
+<tr><td colspan="2"><span style="color:#94A3B8;font-size:12px;">GPS COORDINATES</span><br>{coords}</td></tr>
+{emergency_row}</table>
 {maps_button}{transcript_html}{station_html}
 <p style="color:#94A3B8;font-size:12px;text-align:center;">⏰ Alert dispatched: {timestamp}</p></td></tr>
 <tr><td style="background:#0F172A;padding:20px 32px;border-top:1px solid #1E293B;"><p style="color:#94A3B8;font-size:11px;margin:0;text-align:center;">Automated emergency alert from Sakhi-Sahayak Women Safety System.<br>If this is a false alarm, contact the user directly.</p></td></tr>
@@ -311,7 +345,24 @@ async def _send_resend_email(
 
 async def dispatch_email(alert_data: dict[str, Any]) -> dict[str, Any]:
     recipients: list[str] = []
-    if EMERGENCY_EMAIL:
+
+    # Priority 1: User's emergency contact email passed directly in alert payload
+    user_emergency_email = str(
+        alert_data.get("emergencyEmail") or alert_data.get("emergency_email") or ""
+    ).strip()
+
+    # Priority 2: If missing from payload, fetch from user profile in local SQLite database
+    if not user_emergency_email:
+        contact_info = _get_emergency_contact_from_db(
+            alert_data.get("userPhone") or alert_data.get("userName") or alert_data.get("phone")
+        )
+        user_emergency_email = contact_info.get("emergency_email", "")
+
+    # If the user has a registered emergency email, alerts go directly to that email!
+    if user_emergency_email and "@" in user_emergency_email:
+        recipients.append(user_emergency_email)
+    elif EMERGENCY_EMAIL:
+        # Fall back to env file only if the user hasn't configured an emergency email
         recipients.append(EMERGENCY_EMAIL)
 
     station_email = _get(alert_data.get("nearestStation") or {}, "email")
@@ -352,7 +403,17 @@ async def dispatch_email(alert_data: dict[str, Any]) -> dict[str, Any]:
 
 async def dispatch_sms(alert_data: dict[str, Any]) -> dict[str, Any]:
     raw_phones: list[str] = []
-    recipient_phone = alert_data.get("recipientPhone") or EMERGENCY_PHONE
+    recipient_phone = (
+        alert_data.get("recipientPhone")
+        or alert_data.get("emergencyPhone")
+        or alert_data.get("emergency_phone")
+    )
+    if not recipient_phone:
+        contact_info = _get_emergency_contact_from_db(
+            alert_data.get("userPhone") or alert_data.get("userName") or alert_data.get("phone")
+        )
+        recipient_phone = contact_info.get("emergency_phone") or EMERGENCY_PHONE
+
     if recipient_phone:
         raw_phones.append(str(recipient_phone))
 
@@ -422,8 +483,15 @@ async def dispatch_sms(alert_data: dict[str, Any]) -> dict[str, Any]:
                 "trialTemplateUsed": bool(TWILIO_TRIAL_TEMPLATE),
             }
 
-    # Email fallback does not mean an SMS was sent.
-    if RESEND_API_KEY and EMERGENCY_EMAIL:
+    # Optional email fallback; this does not count as successful SMS delivery.
+    user_emergency_email = str(alert_data.get("emergencyEmail") or alert_data.get("emergency_email") or "").strip()
+    if not user_emergency_email:
+        user_emergency_email = _get_emergency_contact_from_db(
+            alert_data.get("userPhone") or alert_data.get("userName") or alert_data.get("phone")
+        ).get("emergency_email", "")
+
+    emergency_recipient = user_emergency_email or EMERGENCY_EMAIL
+    if RESEND_API_KEY and emergency_recipient:
         fallback_html = (
             '<div style="font-family:Arial,sans-serif;padding:24px;border:2px solid #EF4444;">'
             '<h2 style="color:#EF4444;">SMS delivery fallback notification</h2>'
@@ -431,7 +499,7 @@ async def dispatch_sms(alert_data: dict[str, Any]) -> dict[str, Any]:
             f"<pre style=\"white-space:pre-wrap;\">{html.escape(message)}</pre></div>"
         )
         fallback = await _send_resend_email(
-            EMERGENCY_EMAIL,
+            emergency_recipient,
             f"SMS FALLBACK NOTICE - {alert_data.get('trackingId') or 'SOS'}",
             fallback_html,
             f"SMS could not be submitted to: {', '.join(unique_phones)}\n\n{message}",

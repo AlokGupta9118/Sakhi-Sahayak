@@ -140,8 +140,13 @@ def init_db() -> None:
             password TEXT NOT NULL,
             emergency_name TEXT,
             emergency_phone TEXT,
+            emergency_email TEXT,
             created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
         )""")
+        try:
+            conn.execute("ALTER TABLE users ADD COLUMN emergency_email TEXT")
+        except sqlite3.OperationalError:
+            pass  # Column already exists
         conn.execute("""CREATE TABLE IF NOT EXISTS police_stations (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
@@ -168,6 +173,29 @@ def get_station_rows() -> list[dict[str, Any]]:
         return [dict(row) for row in rows]
     # Keep the existing JSON data usable until stations are imported into SQLite.
     return load_safety_data().get("police_stations", [])
+
+
+def fetch_user_emergency_profile(identifier: str | None) -> dict[str, Any]:
+    """Retrieve trusted emergency contact info from the users table."""
+    if not identifier:
+        return {}
+    val = str(identifier).strip()
+    try:
+        with get_db() as conn:
+            row = conn.execute(
+                """SELECT emergency_name, emergency_phone, emergency_email
+                   FROM users WHERE phone = ? OR name = ?""",
+                (val, val)
+            ).fetchone()
+            if row:
+                return {
+                    "emergency_name": row["emergency_name"],
+                    "emergency_phone": row["emergency_phone"],
+                    "emergency_email": row["emergency_email"],
+                }
+    except Exception:
+        logger.exception("Failed to query user emergency profile for %s", val)
+    return {}
 
 
 # The orchestrator and voice agent use the same local SQLite station catalogue as
@@ -217,15 +245,16 @@ async def signup(payload: dict[str, Any]):
     password = str(payload.get("userPassword", ""))
     emergency_name = str(payload.get("emergencyName", "")).strip() or None
     emergency_phone = str(payload.get("emergencyPhone", "")).strip() or None
+    emergency_email = str(payload.get("emergencyEmail", "")).strip() or None
     if not name or not phone or not password:
         raise HTTPException(400, "Name, phone, and password are required.")
     hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
     try:
         with get_db() as conn:
-            cursor = conn.execute("""INSERT INTO users(name, phone, password, emergency_name, emergency_phone)
-                VALUES(?, ?, ?, ?, ?)""", (name, phone, hashed, emergency_name, emergency_phone))
+            cursor = conn.execute("""INSERT INTO users(name, phone, password, emergency_name, emergency_phone, emergency_email)
+                VALUES(?, ?, ?, ?, ?, ?)""", (name, phone, hashed, emergency_name, emergency_phone, emergency_email))
             user_id = cursor.lastrowid
-            row = conn.execute("""SELECT id, name, phone, emergency_name, emergency_phone
+            row = conn.execute("""SELECT id, name, phone, emergency_name, emergency_phone, emergency_email
                 FROM users WHERE id = ?""", (user_id,)).fetchone()
         return {"success": True, "user": dict(row), "msg": "Signup successful!"}
     except sqlite3.IntegrityError:
@@ -242,13 +271,80 @@ async def login(payload: dict[str, Any]):
     if not phone or not password:
         raise HTTPException(400, "Phone and password are required.")
     with get_db() as conn:
-        row = conn.execute("""SELECT id, name, phone, password, emergency_name, emergency_phone
+        row = conn.execute("""SELECT id, name, phone, password, emergency_name, emergency_phone, emergency_email
             FROM users WHERE phone = ?""", (phone,)).fetchone()
     if not row or not bcrypt.checkpw(password.encode(), row["password"].encode()):
         raise HTTPException(401, "Invalid phone number or password.")
     user = dict(row)
     user.pop("password", None)
     return {"success": True, "user": user, "msg": "Login successful!"}
+
+
+@api.post("/api/google-login")
+async def google_login(payload: dict[str, Any]):
+    email = str(payload.get("email", "")).strip().lower()
+    name = str(payload.get("name", "")).strip()
+    emergency_email = str(payload.get("emergencyEmail", "")).strip() or None
+    if not email:
+        raise HTTPException(400, "Gmail address is required.")
+    if not name:
+        name = email.split("@")[0].capitalize()
+
+    with get_db() as conn:
+        row = conn.execute("""SELECT id, name, phone, emergency_name, emergency_phone, emergency_email
+            FROM users WHERE phone = ?""", (email,)).fetchone()
+        if not row:
+            hashed = bcrypt.hashpw(os.urandom(16), bcrypt.gensalt()).decode()
+            cursor = conn.execute("""INSERT INTO users(name, phone, password, emergency_name, emergency_phone, emergency_email)
+                VALUES(?, ?, ?, ?, ?, ?)""", (name, email, hashed, "Emergency Helpline", "112", emergency_email))
+            user_id = cursor.lastrowid
+            row = conn.execute("""SELECT id, name, phone, emergency_name, emergency_phone, emergency_email
+                FROM users WHERE id = ?""", (user_id,)).fetchone()
+    user = dict(row)
+    user.pop("password", None)
+    user["email"] = email
+    return {"success": True, "user": user, "msg": "Gmail login successful!"}
+
+
+@api.post("/api/update-emergency-contact")
+async def update_emergency_contact(payload: dict[str, Any]):
+    phone = str(payload.get("phone", "") or payload.get("userPhone", "")).strip()
+    name = str(payload.get("name", "") or payload.get("userName", "")).strip()
+    emergency_name = str(payload.get("emergencyName", "")).strip() or None
+    emergency_phone = str(payload.get("emergencyPhone", "")).strip() or None
+    emergency_email = str(payload.get("emergencyEmail", "")).strip() or None
+
+    if not phone and not name:
+        raise HTTPException(400, "User identifier (phone or name) is required.")
+
+    row = None
+    with get_db() as conn:
+        if phone:
+            conn.execute("""UPDATE users SET emergency_name = ?, emergency_phone = ?, emergency_email = ?
+                WHERE phone = ?""", (emergency_name, emergency_phone, emergency_email, phone))
+            row = conn.execute("""SELECT id, name, phone, emergency_name, emergency_phone, emergency_email
+                FROM users WHERE phone = ?""", (phone,)).fetchone()
+        if not row and name:
+            conn.execute("""UPDATE users SET emergency_name = ?, emergency_phone = ?, emergency_email = ?
+                WHERE name = ?""", (emergency_name, emergency_phone, emergency_email, name))
+            row = conn.execute("""SELECT id, name, phone, emergency_name, emergency_phone, emergency_email
+                FROM users WHERE name = ?""", (name,)).fetchone()
+
+    if not row:
+        return {
+            "success": True,
+            "user": {
+                "name": name or "Traveler",
+                "phone": phone or "",
+                "emergency_name": emergency_name,
+                "emergency_phone": emergency_phone,
+                "emergency_email": emergency_email,
+            },
+            "msg": "Emergency contact saved locally.",
+        }
+
+    user = dict(row)
+    return {"success": True, "user": user, "msg": "Emergency contact updated successfully!"}
 
 
 @api.get("/api/danger-zones")
@@ -595,6 +691,7 @@ async def transcribe(
     socketId: str | None = Form(default=None),
     userName: str | None = Form(default=None),
     userPhone: str | None = Form(default=None),
+    emergencyEmail: str | None = Form(default=None),
     lat: float | None = Form(default=None),
     lng: float | None = Form(default=None),
     audioMode: str | None = Form(default=None),
@@ -641,13 +738,27 @@ async def transcribe(
         analysis = None
         if socketId:
             state = get_state(socketId)
-            user_data = {"name": userName, "phone": userPhone, "location": location}
+            profile = fetch_user_emergency_profile(userPhone) or fetch_user_emergency_profile(userName)
+            resolved_emergency_email = emergencyEmail or profile.get("emergency_email") or state.get("emergencyEmail")
+            resolved_emergency_phone = profile.get("emergency_phone") or state.get("emergencyPhone")
+            resolved_emergency_name = profile.get("emergency_name") or state.get("emergencyName")
+            user_data = {
+                "name": userName,
+                "phone": userPhone,
+                "emergencyEmail": resolved_emergency_email,
+                "emergencyPhone": resolved_emergency_phone,
+                "emergencyName": resolved_emergency_name,
+                "location": location,
+            }
             if state.get("status") in {"IDLE", "RESOLVED"}:
                 await agent_start_monitoring(socketId, sio, user_data)
             elif state.get("status") == "MONITORING":
                 set_state(socketId, {
                     "userName": userName or state.get("userName"),
                     "userPhone": userPhone or state.get("userPhone"),
+                    "emergencyEmail": resolved_emergency_email or state.get("emergencyEmail"),
+                    "emergencyPhone": resolved_emergency_phone or state.get("emergencyPhone"),
+                    "emergencyName": resolved_emergency_name or state.get("emergencyName"),
                     "currentLocation": location or state.get("currentLocation"),
                 })
             else:
@@ -728,19 +839,34 @@ async def broadcast_emergency(sid: str, data: dict[str, Any]) -> dict[str, Any]:
     if data.get("lng") is not None:
         location = {**location, "lng": data.get("lng")}
 
+    user_name = data.get("userName") or state.get("userName")
+    user_phone = data.get("userPhone") or state.get("userPhone")
+
+    # Fetch emergency contact details directly from user profile
+    profile = fetch_user_emergency_profile(user_phone) or fetch_user_emergency_profile(user_name)
+    emergency_email = data.get("emergencyEmail") or data.get("emergency_email") or state.get("emergencyEmail") or profile.get("emergency_email")
+    emergency_phone = data.get("emergencyPhone") or data.get("emergency_phone") or state.get("emergencyPhone") or profile.get("emergency_phone")
+    emergency_name = data.get("emergencyName") or data.get("emergency_name") or state.get("emergencyName") or profile.get("emergency_name")
+
     # Initialize the state first; start_monitoring resets incident-specific fields.
     if state.get("status") in {"IDLE", "RESOLVED"}:
         await agent_start_monitoring(sid, sio, {
-            "name": data.get("userName") or state.get("userName"),
-            "phone": data.get("userPhone") or state.get("userPhone"),
+            "name": user_name,
+            "phone": user_phone,
+            "emergencyEmail": emergency_email,
+            "emergencyPhone": emergency_phone,
+            "emergencyName": emergency_name,
             "location": location,
         })
         state = get_state(sid)
 
     tracking_id = str(data.get("trackingId") or f"SOS-{uuid.uuid4().hex[:10].upper()}")
     set_state(sid, {
-        "userName": data.get("userName") or state.get("userName"),
-        "userPhone": data.get("userPhone") or state.get("userPhone"),
+        "userName": user_name,
+        "userPhone": user_phone,
+        "emergencyEmail": emergency_email,
+        "emergencyPhone": emergency_phone,
+        "emergencyName": emergency_name,
         "currentLocation": location,
         "threatTranscript": data.get("transcript") or "Manual SOS button pressed",
         "threatSeverity": data.get("severity") or "critical",
@@ -768,22 +894,35 @@ async def location_update(sid, data):
     await sio.emit("family-dashboard-sync", live_tracking_data)
     state = get_state(sid)
     if state.get("status") in {"EMERGENCY_PROTOCOL", "RECORDING"} and state.get("trackingId"):
-        await dispatch_live_location(sio, {"trackingId": state["trackingId"], **location,
-                                           "userName": state.get("userName"), "userPhone": state.get("userPhone")})
+        await dispatch_live_location(sio, {
+            "trackingId": state["trackingId"],
+            **location,
+            "userName": state.get("userName"),
+            "userPhone": state.get("userPhone"),
+            "emergencyEmail": state.get("emergencyEmail"),
+            "emergencyPhone": state.get("emergencyPhone"),
+        })
 
 
 @sio.on("start-monitoring")
 async def socket_start_monitoring(sid, data=None):
     data = data or {}
     location = data.get("location")
-    # The frontend may start monitoring when route guidance begins and again
-    # when Sarthi is toggled. Do not reset an already-active state or log an
-    # invalid MONITORING -> MONITORING transition.
+    user_name = data.get("userName", data.get("name"))
+    user_phone = data.get("userPhone", data.get("phone"))
+    profile = fetch_user_emergency_profile(user_phone) or fetch_user_emergency_profile(user_name)
+    emergency_email = data.get("emergencyEmail") or data.get("emergency_email") or profile.get("emergency_email")
+    emergency_phone = data.get("emergencyPhone") or data.get("emergency_phone") or profile.get("emergency_phone")
+    emergency_name = data.get("emergencyName") or data.get("emergency_name") or profile.get("emergency_name")
+
     current_state = get_state(sid)
     if current_state.get("status") == "MONITORING":
         set_state(sid, {
-            "userName": data.get("userName", data.get("name")) or current_state.get("userName"),
-            "userPhone": data.get("userPhone", data.get("phone")) or current_state.get("userPhone"),
+            "userName": user_name or current_state.get("userName"),
+            "userPhone": user_phone or current_state.get("userPhone"),
+            "emergencyEmail": emergency_email or current_state.get("emergencyEmail"),
+            "emergencyPhone": emergency_phone or current_state.get("emergencyPhone"),
+            "emergencyName": emergency_name or current_state.get("emergencyName"),
             "currentLocation": location or current_state.get("currentLocation"),
         })
         await sio.emit("agent-state-update", {
@@ -795,8 +934,11 @@ async def socket_start_monitoring(sid, data=None):
     if location is None and (data.get("lat") is not None or data.get("lng") is not None):
         location = {"lat": data.get("lat"), "lng": data.get("lng")}
     await agent_start_monitoring(sid, sio, {
-        "name": data.get("userName", data.get("name")),
-        "phone": data.get("userPhone", data.get("phone")),
+        "name": user_name,
+        "phone": user_phone,
+        "emergencyEmail": emergency_email,
+        "emergencyPhone": emergency_phone,
+        "emergencyName": emergency_name,
         "location": location,
     })
 
@@ -819,16 +961,29 @@ async def voice_transcript(sid, data):
     location = data.get("location")
     if location is None and (data.get("lat") is not None or data.get("lng") is not None):
         location = {"lat": data.get("lat"), "lng": data.get("lng")}
+    user_name = data.get("userName", data.get("name"))
+    user_phone = data.get("userPhone", data.get("phone"))
+    profile = fetch_user_emergency_profile(user_phone) or fetch_user_emergency_profile(user_name)
+    emergency_email = data.get("emergencyEmail") or data.get("emergency_email") or profile.get("emergency_email")
+    emergency_phone = data.get("emergencyPhone") or data.get("emergency_phone") or profile.get("emergency_phone")
+    emergency_name = data.get("emergencyName") or data.get("emergency_name") or profile.get("emergency_name")
+
     if state.get("status") in {"IDLE", "RESOLVED"}:
         await agent_start_monitoring(sid, sio, {
-            "name": data.get("userName", data.get("name")),
-            "phone": data.get("userPhone", data.get("phone")),
+            "name": user_name,
+            "phone": user_phone,
+            "emergencyEmail": emergency_email,
+            "emergencyPhone": emergency_phone,
+            "emergencyName": emergency_name,
             "location": location,
         })
     elif state.get("status") == "MONITORING":
         set_state(sid, {
-            "userName": data.get("userName", data.get("name")) or state.get("userName"),
-            "userPhone": data.get("userPhone", data.get("phone")) or state.get("userPhone"),
+            "userName": user_name or state.get("userName"),
+            "userPhone": user_phone or state.get("userPhone"),
+            "emergencyEmail": emergency_email or state.get("emergencyEmail"),
+            "emergencyPhone": emergency_phone or state.get("emergencyPhone"),
+            "emergencyName": emergency_name or state.get("emergencyName"),
             "currentLocation": location or state.get("currentLocation"),
         })
     else:

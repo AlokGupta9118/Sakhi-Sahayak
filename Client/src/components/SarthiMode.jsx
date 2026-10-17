@@ -623,7 +623,31 @@ export default function Dashboard({ user = {}, onLogout }) {
 
         <section className="welcome-row"><div><span className="eyebrow"><span className="eyebrow-dot" /> YOUR PERSONAL SAFETY DASHBOARD</span><h1>Good to see you, <span>{userName.split(' ')[0]}.</span></h1><p>Stay aware of your surroundings, know your support options, and plan with better information.</p></div><div className="welcome-date"><Clock3 size={16} /><span>{new Intl.DateTimeFormat('en-IN', { weekday: 'short', day: 'numeric', month: 'short' }).format(new Date())}</span></div></section>
 
-        <section className={`status-banner ${isSarthiActive ? 'sarthi-active-banner' : ''}`}><div className="status-banner-icon"><ShieldCheck size={23} /></div><div className="status-banner-copy"><b>{isSOS ? 'Emergency workflow active' : isSarthiActive ? 'Sarthi movement reminders are on' : 'You are in control of your safety tools'}</b><p>{isSOS ? `Current agent state: ${prettyStatus(agentState.status)}. If you need immediate help, call 112.` : isSarthiActive ? `Sarthi is active · movement check: 15 seconds · microphone: ${sarthiMicStatus === 'listening' ? 'listening' : sarthiMicStatus === 'blocked' ? 'permission needed' : sarthiMicStatus === 'error' ? 'unavailable' : 'starting'}.` : 'Location and microphone features run only with browser permission and your action.'}</p></div><div className="status-banner-actions"><button className={`button ${isSarthiActive ? 'button-secondary sarthi-glow-button' : 'button-ghost'}`} onClick={handleSarthi} disabled={!isSarthiActive && locationStatus !== 'live'}><Activity size={16} />{isSarthiActive ? 'Pause Sarthi' : 'Enable Sarthi'}</button><button className={sarthiMicStatus === 'listening' ? 'button button-secondary sarthi-glow-button' : 'button button-ghost'} onClick={() => void toggleSarthiMic()} disabled={!isSarthiActive}>{sarthiMicStatus === 'listening' ? 'Turn Voice Guard off' : 'Enable Voice Guard'}</button>{['THREAT_DETECTED', 'INTERCEPT_COUNTDOWN'].includes(agentState?.status) && <button className="button button-ghost" onClick={cancelIntercept}><CheckCircle2 size={16} /> I'm safe</button>}<button className="button button-danger" onClick={triggerSOS}><Siren size={17} /> SOS</button></div></section>
+        <section className={`status-banner ${isSarthiActive ? 'sarthi-active-banner' : ''}`}>
+          <div className="status-banner-header">
+            <div className="status-banner-icon"><ShieldCheck size={23} /></div>
+            <div className="status-banner-copy">
+              <b>{isSOS ? 'Emergency workflow active' : isSarthiActive ? 'Sarthi movement reminders are on' : 'You are in control of your safety tools'}</b>
+              <p>{isSOS ? `Current agent state: ${prettyStatus(agentState.status)}. If you need immediate help, call 112.` : isSarthiActive ? `Sarthi is active · movement check: 15 seconds · microphone: ${sarthiMicStatus === 'listening' ? 'listening' : sarthiMicStatus === 'blocked' ? 'permission needed' : sarthiMicStatus === 'error' ? 'unavailable' : 'starting'}.` : 'Location and microphone features run only with browser permission and your action.'}</p>
+            </div>
+          </div>
+          <div className="status-banner-actions">
+            <button className={`button ${isSarthiActive ? 'button-secondary sarthi-glow-button' : 'button-ghost'}`} onClick={handleSarthi} disabled={!isSarthiActive && locationStatus !== 'live'}>
+              <Activity size={16} />{isSarthiActive ? 'Pause Sarthi' : 'Enable Sarthi'}
+            </button>
+            <button className={sarthiMicStatus === 'listening' ? 'button button-secondary sarthi-glow-button' : 'button button-ghost'} onClick={() => void toggleSarthiMic()} disabled={!isSarthiActive}>
+              {sarthiMicStatus === 'listening' ? 'Turn Voice Guard off' : 'Enable Voice Guard'}
+            </button>
+            {['THREAT_DETECTED', 'INTERCEPT_COUNTDOWN'].includes(agentState?.status) && (
+              <button className="button button-ghost" onClick={cancelIntercept}>
+                <CheckCircle2 size={16} /> I'm safe
+              </button>
+            )}
+            <button className="button button-danger sos-banner-btn" onClick={triggerSOS}>
+              <Siren size={17} /> SOS
+            </button>
+          </div>
+        </section>
 
         <section className="metrics-grid">
 
